@@ -1,0 +1,46 @@
+[workspace]
+resolver = "2"
+members = [
+    "crates/omni3mf-core",
+    "crates/omni3mf-cli",
+    "crates/omni3mf-wasm",
+]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.75"
+authors = ["StlTo3mf Contributors"]
+license = "MIT OR Apache-2.0"
+description = "High-performance, 100% safe Rust STL to 3MF converter with automated mesh repair, multi-shell separation, and slicer profile sanitization (CLI & Web UI)"
+repository = "https://github.com/madireis/stl-to-3mf"
+homepage = "https://github.com/madireis/stl-to-3mf"
+documentation = "https://github.com/madireis/stl-to-3mf#readme"
+keywords = ["stl", "3mf", "3d-printing", "mesh-repair", "geometry"]
+categories = ["command-line-utilities", "multimedia::encoding", "science::robotics"]
+
+[workspace.dependencies]
+omni3mf-core = { path = "crates/omni3mf-core" }
+byteorder = "1.5"
+quick-xml = { version = "0.36", features = ["serialize"] }
+zip = { version = "2.2", default-features = false, features = ["deflate"] }
+png = "0.17"
+thiserror = "1.0"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+clap = { version = "4.5", features = ["derive", "cargo", "env"] }
+rayon = "1.10"
+indicatif = { version = "0.17", features = ["rayon"] }
+wasm-bindgen = "0.2"
+js-sys = "0.3"
+web-sys = { version = "0.3", features = ["console"] }
+serde-wasm-bindgen = "0.6"
+console_error_panic_hook = "0.1"
+anyhow = "1.0"
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+panic = "abort"
+strip = true

@@ -1,0 +1,30 @@
+[package]
+name = "omni3mf-cli"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+description = "High-speed multi-threaded native CLI for StlTo3mf mesh repair and 3MF conversion (powered by Omni3MF)"
+
+[[bin]]
+name = "stl-to-3mf"
+path = "src/main.rs"
+
+[[bin]]
+name = "stls-to-3mf"
+path = "src/main.rs"
+
+[[bin]]
+name = "omni3mf"
+path = "src/main.rs"
+
+[dependencies]
+omni3mf-core = { workspace = true, features = ["parallel"] }
+clap = { workspace = true }
+rayon = { workspace = true }
+indicatif = { workspace = true }
+anyhow = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+quick-xml = { workspace = true }
+zip = { workspace = true }

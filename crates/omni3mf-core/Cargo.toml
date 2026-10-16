@@ -1,0 +1,21 @@
+[package]
+name = "omni3mf-core"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+description = "Pure Rust geometry repair, shell segmentation, and 3MF packaging engine"
+
+[dependencies]
+byteorder.workspace = true
+quick-xml.workspace = true
+zip.workspace = true
+png.workspace = true
+thiserror.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+rayon = { workspace = true, optional = true }
+
+[features]
+default = []
+parallel = ["dep:rayon"]

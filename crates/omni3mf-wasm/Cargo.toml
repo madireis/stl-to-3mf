@@ -1,0 +1,25 @@
+[package]
+name = "omni3mf-wasm"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+description = "WebAssembly bindings for in-browser Omni3MF repair and packaging"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+omni3mf-core = { workspace = true }
+wasm-bindgen = { workspace = true }
+js-sys = { workspace = true }
+web-sys = { workspace = true }
+serde = { workspace = true }
+serde-wasm-bindgen = { workspace = true }
+console_error_panic_hook = { workspace = true, optional = true }
+
+[features]
+default = ["console_error_panic_hook"]
+
+[dev-dependencies]
+zip = { workspace = true }
