@@ -1,0 +1,1010 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>StlTo3mf Documentation Portal — Architecture, CLI, Web &amp; Mathematical Proofs</title>
+  <meta name="description" content="Comprehensive technical documentation for StlTo3mf &amp; Omni3MF engine: 11-stage geometry repair pipeline, Divergence Theorem signed volume, Newell ear clipping, CLI recipes, and slicer compatibility.">
+  <link rel="stylesheet" href="./docs.css">
+</head>
+<body>
+
+  <!-- Top Navigation Bar -->
+  <header class="docs-nav">
+    <div class="nav-left">
+      <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Toggle sidebar navigation">☰</button>
+      <a href="../" class="brand">
+        <span>📐</span>
+        <span>StlTo3mf <span class="brand-badge">Docs</span></span>
+      </a>
+      <span class="docs-tag">v0.1.0</span>
+    </div>
+
+    <!-- Real-Time Search Bar -->
+    <div class="search-container">
+      <div class="search-input-wrapper">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="docsSearch" class="search-input" placeholder="Search documentation, flags, theorems..." autocomplete="off" spellcheck="false" />
+        <button id="clearSearch" class="search-clear-btn" title="Clear search">✕</button>
+        <span class="search-shortcut">⌘K</span>
+      </div>
+    </div>
+
+    <div class="nav-actions">
+      <a href="../" class="nav-btn primary">🚀 Launch Web Studio</a>
+      <a href="https://github.com/madireis/stl-to-3mf" target="_blank" rel="noopener noreferrer" class="nav-btn secondary">⭐ GitHub</a>
+    </div>
+  </header>
+
+  <!-- Mobile Sidebar Backdrop -->
+  <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+  <!-- Documentation Layout -->
+  <div class="docs-layout">
+
+    <!-- Sticky Sidebar Navigation -->
+    <nav class="docs-sidebar" id="docsSidebar" aria-label="Documentation Navigation">
+      <div id="searchStatus" class="sidebar-search-status"></div>
+
+      <div class="nav-section">
+        <div class="nav-section-title">Getting Started</div>
+        <ul class="nav-list">
+          <li class="nav-item">
+            <a href="#overview" class="nav-link active">
+              <span class="nav-link-icon">⚡</span>
+              <span>Overview &amp; Quickstart</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="#stl-vs-3mf" class="nav-link">
+              <span class="nav-link-icon">⚖️</span>
+              <span>STL vs 3MF Comparison</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+
+      <div class="nav-section">
+        <div class="nav-section-title">Interfaces &amp; Guides</div>
+        <ul class="nav-list">
+          <li class="nav-item">
+            <a href="#cli-guide" class="nav-link">
+              <span class="nav-link-icon">💻</span>
+              <span>CLI Commands &amp; Flags</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="#cli-recipes" class="nav-link">
+              <span class="nav-link-icon">🛠️</span>
+              <span>CLI Recipes &amp; Batch Scripts</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="#web-guide" class="nav-link">
+              <span class="nav-link-icon">🌐</span>
+              <span>Web Studio &amp; REST API</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="#client-pipeline" class="nav-link">
+              <span class="nav-link-icon">🧩</span>
+              <span>Client-Side Geometry Engine</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+
+      <div class="nav-section">
+        <div class="nav-section-title">Deep Technical Architecture</div>
+        <ul class="nav-list">
+          <li class="nav-item">
+            <a href="#pipeline-stages" class="nav-link">
+              <span class="nav-link-icon">⚙️</span>
+              <span>11-Stage Repair Pipeline</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="#mathematical-proofs" class="nav-link">
+              <span class="nav-link-icon">📐</span>
+              <span>Mathematical Proofs</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="#opc-spec" class="nav-link">
+              <span class="nav-link-icon">📦</span>
+              <span>3MF OPC ZIP Specification</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+
+      <div class="nav-section">
+        <div class="nav-section-title">Ecosystem &amp; Quality</div>
+        <ul class="nav-list">
+          <li class="nav-item">
+            <a href="#slicers" class="nav-link">
+              <span class="nav-link-icon">🖨️</span>
+              <span>Slicer Compatibility Matrix</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="#contributing" class="nav-link">
+              <span class="nav-link-icon">🧪</span>
+              <span>Testing &amp; Contributing</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+    </nav>
+
+    <!-- Main Content Stream -->
+    <main class="docs-main">
+
+      <!-- ==================================================================
+           SECTION 1: OVERVIEW & QUICKSTART
+           ================================================================== -->
+      <article class="docs-article" id="overview">
+        <div class="article-header">
+          <span class="article-badge badge-cyan">Introduction</span>
+          <h1>StlTo3mf Technical Overview</h1>
+          <p>
+            <strong>StlTo3mf</strong> is a high-performance, 100% memory-safe STL-to-3MF conversion and mesh healing pipeline written in pure Rust (enforcing <code>#![forbid(unsafe_code)]</code>).
+            Powered by the <strong>Omni3MF</strong> geometry engine, it bridges legacy CAD mesh output with modern additive manufacturing slicers.
+          </p>
+        </div>
+
+        <div class="cards-grid">
+          <div class="doc-card">
+            <span class="doc-card-icon">🛡️</span>
+            <h4>100% Safe Rust</h4>
+            <p>Zero <code>unsafe</code> blocks across the entire workspace. Guaranteed spatial memory safety, thread safety, and crash-free execution.</p>
+          </div>
+          <div class="doc-card">
+            <span class="doc-card-icon">⚡</span>
+            <h4>Deterministic &amp; Fast</h4>
+            <p>Rayon multi-threaded CLI processing thousands of triangles per millisecond, alongside an in-browser WebAssembly and pure client-side engine.</p>
+          </div>
+          <div class="doc-card">
+            <span class="doc-card-icon">🧩</span>
+            <h4>Multi-Shell Separation</h4>
+            <p>Disjoint Set Union (DSU) topological clustering splits compound STLs into discrete, colorable 3MF <code>&lt;object&gt;</code> nodes.</p>
+          </div>
+          <div class="doc-card">
+            <span class="doc-card-icon">🧹</span>
+            <h4>Profile Sanitization</h4>
+            <p>Purges unverified vendor printer profiles, temperature overrides, and hidden G-code scripts while preserving filament colors.</p>
+          </div>
+        </div>
+
+        <div class="callout tip">
+          <span class="callout-icon">💡</span>
+          <div class="callout-content">
+            <strong>Zero Server Dependencies:</strong> StlTo3mf runs both as an ultra-fast compiled native CLI and as a zero-backend client-side web application. All geometric repair, shell separation, and 3MF packaging happen directly on your machine or inside your browser tab without any telemetry or file uploads.
+          </div>
+        </div>
+
+        <h2 id="quickstart">30-Second Quickstart</h2>
+
+        <h3>Option A: Instant Browser Studio (Zero Install)</h3>
+        <p>No build tools or installation needed. Simply open the Web Studio directly in your web browser:</p>
+        <ol>
+          <li>Click <a href="../" class="text-link"><strong>Launch Web Studio</strong></a> or navigate to the converter root.</li>
+          <li>Drag &amp; drop any ASCII or binary <code>.stl</code> model into the drop zone.</li>
+          <li>Inspect the interactive 3D WebGL preview and click <strong>⚡ Convert &amp; Download 3MF</strong>.</li>
+        </ol>
+
+        <h3>Option B: High-Throughput Native CLI</h3>
+        <p>Compile the optimized native Rust binary using Cargo:</p>
+        <div class="code-box">
+          <div class="code-header">
+            <span class="code-lang-tag">bash</span>
+            <button class="copy-btn"><span>📋</span><span>Copy</span></button>
+          </div>
+          <pre><code><span class="tok-com"># Clone repository and build optimized release binary</span>
+git clone https://github.com/madireis/stl-to-3mf.git
+<span class="tok-cmd">cd</span> stl-to-3mf
+cargo build --release --bin stl-to-3mf
+
+<span class="tok-com"># Convert single STL with auto-repair, shell splitting, and profile sanitization</span>
+./target/release/stl-to-3mf convert model.stl -o model.3mf --strip-slicer-config
+
+<span class="tok-com"># Batch convert an entire directory in parallel using Rayon</span>
+./target/release/stl-to-3mf convert ./models/ -o ./output_3mf/ --threads 0</code></pre>
+        </div>
+      </article>
+
+      <!-- ==================================================================
+           SECTION 1.1: STL VS 3MF COMPARISON
+           ================================================================== -->
+      <article class="docs-article" id="stl-vs-3mf">
+        <div class="article-header">
+          <span class="article-badge badge-orange">Format Comparison</span>
+          <h2>Why Migrate from STL to 3MF?</h2>
+          <p>
+            Created in 1987, the <strong>STL (Standard Triangle Language)</strong> format was designed for rudimentary stereolithography.
+            Modern 3D printing requires multi-material identification, unit scaling, watertight validation, and thumbnail metadata.
+            Here is how StlTo3mf elevates your files:
+          </p>
+        </div>
+
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Feature / Characteristic</th>
+                <th>Legacy STL Format</th>
+                <th>Modern 3MF (StlTo3mf Engineered)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Data Container</strong></td>
+                <td>Raw uncompressed float list (binary or ASCII)</td>
+                <td>OPC ZIP container with XML schemas &amp; Deflate compression</td>
+              </tr>
+              <tr>
+                <td><strong>Multi-Body / Multi-Shell</strong></td>
+                <td>❌ Impossible; all bodies fused into single triangle cloud</td>
+                <td>✅ Discrete <code>&lt;object&gt;</code> nodes with independent IDs and colors</td>
+              </tr>
+              <tr>
+                <td><strong>Dimensional Units</strong></td>
+                <td>❌ Undefined; slicer guesses millimeters or inches</td>
+                <td>✅ Explicit <code>unit="millimeter"</code> declared in root XML schema</td>
+              </tr>
+              <tr>
+                <td><strong>Color &amp; Filament Materials</strong></td>
+                <td>❌ None in standard specification</td>
+                <td>✅ Native <code>&lt;m:colorgroup&gt;</code> palette with hex RGBA mapping</td>
+              </tr>
+              <tr>
+                <td><strong>Topology &amp; Watertightness</strong></td>
+                <td>⚠️ Frequently riddled with duplicate vertices and open holes</td>
+                <td>✅ Automated 11-stage spatial welding and boundary loop patching</td>
+              </tr>
+              <tr>
+                <td><strong>File Size &amp; Bandwidth</strong></td>
+                <td>❌ Heavy; 50 bytes per triangle, zero compression</td>
+                <td>✅ Lightweight; 60%–80% smaller thanks to vertex indexing and ZIP</td>
+              </tr>
+              <tr>
+                <td><strong>Slicer &amp; Printer Previews</strong></td>
+                <td>❌ Requires slow offline parsing of millions of vertices</td>
+                <td>✅ Embedded 256×256 PNG thumbnail at <code>/Metadata/thumbnail.png</code></td>
+              </tr>
+              <tr>
+                <td><strong>Slicer Security</strong></td>
+                <td>N/A</td>
+                <td>✅ Sanitizer scrubs third-party printer overrides &amp; custom G-code</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </article>
+
+      <!-- ==================================================================
+           SECTION 2: CLI GUIDE
+           ================================================================== -->
+      <article class="docs-article" id="cli-guide">
+        <div class="article-header">
+          <span class="article-badge badge-cyan">CLI Reference</span>
+          <h2>CLI Commands &amp; Parameter Reference</h2>
+          <p>
+            The StlTo3mf command-line tool provides three subcommands: <code>convert</code>, <code>inspect</code>, and <code>sanitize</code>.
+            The binary can be invoked using any of its compiled aliases: <code>stl-to-3mf</code>, <code>stls-to-3mf</code>, or <code>omni3mf</code>.
+          </p>
+        </div>
+
+        <h3>Subcommand: <code>convert</code></h3>
+        <p>Converts single STL files or entire directories into compliant 3MF packages with full mesh repair and shell splitting.</p>
+
+        <div class="code-box">
+          <div class="code-header">
+            <span class="code-lang-tag">bash</span>
+            <button class="copy-btn"><span>📋</span><span>Copy</span></button>
+          </div>
+          <pre><code><span class="tok-cmd">stl-to-3mf</span> convert &lt;INPUT&gt; [OPTIONS]</code></pre>
+        </div>
+
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Flag / Option</th>
+                <th>Type</th>
+                <th>Default</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>&lt;INPUT&gt;</code></td>
+                <td>Path</td>
+                <td><em>(Required)</em></td>
+                <td>Path to single <code>.stl</code> file or directory of STLs.</td>
+              </tr>
+              <tr>
+                <td><code>-o, --output &lt;PATH&gt;</code></td>
+                <td>Path</td>
+                <td><code>&lt;input&gt;.3mf</code></td>
+                <td>Target output file path or target directory for batch jobs.</td>
+              </tr>
+              <tr>
+                <td><code>--merge-tolerance &lt;f64&gt;</code></td>
+                <td>Float</td>
+                <td><code>1e-6</code></td>
+                <td>Spatial welding radius in millimeters for coincident vertices.</td>
+              </tr>
+              <tr>
+                <td><code>--no-repair</code></td>
+                <td>Flag</td>
+                <td><code>false</code></td>
+                <td>Disables boundary hole loop extraction and ear-clipping hole patching.</td>
+              </tr>
+              <tr>
+                <td><code>--hole-max-edges &lt;usize&gt;</code></td>
+                <td>Integer</td>
+                <td><code>64</code></td>
+                <td>Maximum perimeter edges in a single boundary loop permitted for auto-patching.</td>
+              </tr>
+              <tr>
+                <td><code>--no-split</code></td>
+                <td>Flag</td>
+                <td><code>false</code></td>
+                <td>Preserves all faces as one object; bypasses DSU shell separation.</td>
+              </tr>
+              <tr>
+                <td><code>--strip-slicer-config</code></td>
+                <td>Flag</td>
+                <td><code>false</code></td>
+                <td>Purges embedded slicer presets, acceleration profiles, and custom G-code.</td>
+              </tr>
+              <tr>
+                <td><code>--preserve-supports</code></td>
+                <td>Bool</td>
+                <td><code>true</code></td>
+                <td>Retains slicer-generated support structure meshes if present.</td>
+              </tr>
+              <tr>
+                <td><code>--scale &lt;f64&gt;</code></td>
+                <td>Float</td>
+                <td><code>1.0</code></td>
+                <td>Uniform scale multiplier (e.g. <code>25.4</code> converts inches to mm).</td>
+              </tr>
+              <tr>
+                <td><code>--threads &lt;usize&gt;</code></td>
+                <td>Integer</td>
+                <td><code>0</code></td>
+                <td>Rayon worker thread count. <code>0</code> uses all logical CPU cores.</td>
+              </tr>
+              <tr>
+                <td><code>-q, --quiet</code></td>
+                <td>Flag</td>
+                <td><code>false</code></td>
+                <td>Mutes terminal progress bars, spinners, and informative output.</td>
+              </tr>
+              <tr>
+                <td><code>-v, --verbose</code></td>
+                <td>Flag</td>
+                <td><code>false</code></td>
+                <td>Enables diagnostic debug logging of vertices, loops, and packaging.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>Subcommand: <code>inspect</code></h3>
+        <p>Analyzes an STL or 3MF model's topology, dimensions, watertightness, and scale sanity without modifying the file.</p>
+
+        <div class="code-box">
+          <div class="code-header">
+            <span class="code-lang-tag">bash</span>
+            <button class="copy-btn"><span>📋</span><span>Copy</span></button>
+          </div>
+          <pre><code><span class="tok-com"># Human-readable diagnostic output</span>
+<span class="tok-cmd">stl-to-3mf</span> inspect complex_bracket.stl
+
+<span class="tok-com"># Structured JSON output for CI/CD and pre-flight pipelines</span>
+<span class="tok-cmd">stl-to-3mf</span> inspect complex_bracket.stl --json</code></pre>
+        </div>
+
+        <p>Example JSON diagnostics schema returned by <code>--json</code>:</p>
+        <div class="code-box">
+          <div class="code-header">
+            <span class="code-lang-tag">json</span>
+            <button class="copy-btn"><span>📋</span><span>Copy</span></button>
+          </div>
+          <pre><code>{
+  <span class="tok-str">"format"</span>: <span class="tok-str">"binary"</span>,
+  <span class="tok-str">"raw_triangles"</span>: <span class="tok-num">48200</span>,
+  <span class="tok-str">"deduplicated_vertices"</span>: <span class="tok-num">24102</span>,
+  <span class="tok-str">"degenerate_facets_pruned"</span>: <span class="tok-num">14</span>,
+  <span class="tok-str">"boundary_holes_detected"</span>: <span class="tok-num">2</span>,
+  <span class="tok-str">"shells_count"</span>: <span class="tok-num">3</span>,
+  <span class="tok-str">"is_watertight"</span>: <span class="tok-kw">true</span>,
+  <span class="tok-str">"bounding_box"</span>: {
+    <span class="tok-str">"min"</span>: [-45.0, -22.5, 0.0],
+    <span class="tok-str">"max"</span>: [45.0, 22.5, 35.8],
+    <span class="tok-str">"dimensions"</span>: [90.0, 45.0, 35.8]
+  },
+  <span class="tok-str">"scale_sanity"</span>: {
+    <span class="tok-str">"status"</span>: <span class="tok-str">"normal"</span>,
+    <span class="tok-str">"suggested_multiplier"</span>: <span class="tok-num">1.0</span>
+  }
+}</code></pre>
+        </div>
+
+        <h3>Subcommand: <code>sanitize</code></h3>
+        <p>Cleans an existing <code>.3mf</code> package downloaded from the web, stripping unsafe printer configuration overrides while maintaining geometry, colors, and components.</p>
+        <div class="code-box">
+          <div class="code-header">
+            <span class="code-lang-tag">bash</span>
+            <button class="copy-btn"><span>📋</span><span>Copy</span></button>
+          </div>
+          <pre><code><span class="tok-cmd">stl-to-3mf</span> sanitize untrusted_download.3mf -o safe_clean.3mf</code></pre>
+        </div>
+      </article>
+
+      <!-- ==================================================================
+           SECTION 2.1: CLI RECIPES & AUTOMATION
+           ================================================================== -->
+      <article class="docs-article" id="cli-recipes">
+        <div class="article-header">
+          <span class="article-badge badge-orange">Automation</span>
+          <h2>Real-World Recipes &amp; Batch Scripts</h2>
+          <p>Common production command patterns for print farm automation, 3D scan healing, and CI/CD validation.</p>
+        </div>
+
+        <h3>Recipe 1: Multi-Color Shell Separation for Bambu Studio &amp; OrcaSlicer</h3>
+        <p>Ensure disconnected pieces (e.g. eyes, buttons, body parts) become independent objects ready for filament assignment:</p>
+        <div class="code-box">
+          <div class="code-header">
+            <span class="code-lang-tag">bash</span>
+            <button class="copy-btn"><span>📋</span><span>Copy</span></button>
+          </div>
+          <pre><code><span class="tok-cmd">stl-to-3mf</span> convert character_multicolor.stl -o character.3mf \
+  --merge-tolerance 1e-6 \
+  --strip-slicer-config</code></pre>
+        </div>
+
+        <h3>Recipe 2: Aggressive Hole Healing for Defective 3D Scans</h3>
+        <p>Increase boundary perimeter tolerance to patch larger scanning holes and force normal alignment:</p>
+        <div class="code-box">
+          <div class="code-header">
+            <span class="code-lang-tag">bash</span>
+            <button class="copy-btn"><span>📋</span><span>Copy</span></button>
+          </div>
+          <pre><code><span class="tok-cmd">stl-to-3mf</span> convert raw_scan.stl -o healed_scan.3mf \
+  --hole-max-edges 256 \
+  --merge-tolerance 1e-5 \
+  --verbose</code></pre>
+        </div>
+
+        <h3>Recipe 3: Parallel Batch Directory Processing (PowerShell)</h3>
+        <p>Convert all STL files in a folder into individual 3MF packages in Windows PowerShell:</p>
+        <div class="code-box">
+          <div class="code-header">
+            <span class="code-lang-tag">powershell</span>
+            <button class="copy-btn"><span>📋</span><span>Copy</span></button>
+          </div>
+          <pre><code><span class="tok-cmd">Get-ChildItem</span> -Path .\stls\ -Filter *.stl | <span class="tok-kw">ForEach-Object</span> {
+    $outPath = Join-Path .\3mf_output\ ($_.BaseName + <span class="tok-str">".3mf"</span>)
+    <span class="tok-cmd">stl-to-3mf</span> convert $_.FullName -o $outPath --strip-slicer-config
+}</code></pre>
+        </div>
+
+        <h3>Recipe 4: CI/CD Mesh Validation Gate (Bash + <code>jq</code>)</h3>
+        <p>Verify that all generated mechanical parts in your repository are strictly watertight before merging pull requests:</p>
+        <div class="code-box">
+          <div class="code-header">
+            <span class="code-lang-tag">bash</span>
+            <button class="copy-btn"><span>📋</span><span>Copy</span></button>
+          </div>
+          <pre><code><span class="tok-kw">for</span> f <span class="tok-kw">in</span> cad_exports/*.stl; <span class="tok-kw">do</span>
+  IS_WATERTIGHT=$(stl-to-3mf inspect <span class="tok-str">"$f"</span> --json | jq -r <span class="tok-str">'.is_watertight'</span>)
+  <span class="tok-kw">if</span> [ <span class="tok-str">"$IS_WATERTIGHT"</span> != <span class="tok-str">"true"</span> ]; <span class="tok-kw">then</span>
+    <span class="tok-cmd">echo</span> <span class="tok-str">"❌ Validation Failure: $f is NOT watertight!"</span>
+    <span class="tok-cmd">exit</span> 1
+  <span class="tok-kw">fi</span>
+<span class="tok-kw">done</span>
+<span class="tok-cmd">echo</span> <span class="tok-str">"✅ All CAD meshes verified 100% watertight."</span></code></pre>
+        </div>
+      </article>
+
+      <!-- ==================================================================
+           SECTION 3: WEB STUDIO & REST API
+           ================================================================== -->
+      <article class="docs-article" id="web-guide">
+        <div class="article-header">
+          <span class="article-badge badge-purple">Web Integration</span>
+          <h2>Web Studio &amp; REST API Guide</h2>
+          <p>
+            StlTo3mf includes a sleek web application running either 100% client-side in static hosting environments or via an isolated Node.js HTTP server.
+          </p>
+        </div>
+
+        <h3>Starting the Local Server</h3>
+        <p>The local HTTP service in <code>web/server.js</code> requires zero external npm dependencies—it relies purely on standard Node.js modules (<code>http</code>, <code>fs</code>, <code>path</code>, <code>child_process</code>):</p>
+        <div class="code-box">
+          <div class="code-header">
+            <span class="code-lang-tag">bash</span>
+            <button class="copy-btn"><span>📋</span><span>Copy</span></button>
+          </div>
+          <pre><code><span class="tok-com"># Run with default port 3000</span>
+node web/server.js
+
+<span class="tok-com"># Run with custom port</span>
+PORT=8080 node web/server.js</code></pre>
+        </div>
+
+        <h3>REST API Reference</h3>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Endpoint</th>
+                <th>Method</th>
+                <th>Content-Type</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>/</code></td>
+                <td><code>GET</code></td>
+                <td><code>text/html</code></td>
+                <td>Serves the Web Studio 3D conversion frontend.</td>
+              </tr>
+              <tr>
+                <td><code>/docs/</code></td>
+                <td><code>GET</code></td>
+                <td><code>text/html</code></td>
+                <td>Serves this documentation portal.</td>
+              </tr>
+              <tr>
+                <td><code>/api/convert</code></td>
+                <td><code>POST</code></td>
+                <td><code>multipart/form-data</code></td>
+                <td>Uploads an STL and streams back the generated <code>.3mf</code> binary package.</td>
+              </tr>
+              <tr>
+                <td><code>/api/inspect</code></td>
+                <td><code>POST</code></td>
+                <td><code>multipart/form-data</code></td>
+                <td>Returns diagnostic JSON (watertightness, volume, shell count, bounds).</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3><code>POST /api/convert</code></h3>
+        <p>Accepts a multipart form with an STL file and parameters, returning a freshly packaged <code>.3mf</code> binary archive.</p>
+
+        <h4>Example <code>curl</code> API Request:</h4>
+        <div class="code-box">
+          <div class="code-header">
+            <span class="code-lang-tag">bash</span>
+            <button class="copy-btn"><span>📋</span><span>Copy</span></button>
+          </div>
+          <pre><code>curl -X POST http://localhost:3000/api/convert \
+  -F "file=@sample_gear.stl" \
+  -F "split_shells=true" \
+  -F "repair=true" \
+  -F "strip_slicer_config=true" \
+  -o sample_gear.3mf</code></pre>
+        </div>
+      </article>
+
+      <!-- ==================================================================
+           SECTION 3.1: CLIENT-SIDE PIPELINE
+           ================================================================== -->
+      <article class="docs-article" id="client-pipeline">
+        <div class="article-header">
+          <span class="article-badge badge-green">Zero-Backend</span>
+          <h2>Client-Side Geometry Engine (Browser Runtime)</h2>
+          <p>
+            When hosted statically on GitHub Pages or Cloudflare Pages, StlTo3mf converts and heals models directly in JavaScript without sending a single byte to an external server.
+          </p>
+        </div>
+
+        <p>The client-side engine consists of five coordinated ES6 modules located in <code>web/public/assets/js/</code>:</p>
+        <ul>
+          <li><strong><code>stl-parser.js</code>:</strong> Ingests binary STL buffers via <code>DataView</code> and ASCII STLs using regex tokenizers directly into continuous <code>Float32Array</code> position buffers.</li>
+          <li><strong><code>mesh-repair.js</code>:</strong> Implements spatial hash grid vertex welding ($10^{-6}\text{ mm}$ cell size), degenerate facet elimination, boundary loop edge extraction, and Gauss Divergence signed volume checks.</li>
+          <li><strong><code>shell-separator.js</code>:</strong> Implements Disjoint Set Union (DSU) to group triangles sharing undirected edges into distinct shells with compact 0-based vertex re-indexing.</li>
+          <li><strong><code>viewer3d.js</code>:</strong> Three.js WebGL viewport featuring OrbitControls, independent multi-color shell rendering, glowing red boundary hole wireframe highlights, and offscreen 256×256 thumbnail capture.</li>
+          <li><strong><code>threemf-packager.js</code>:</strong> Builds compliant OPC ZIP packages entirely in memory using <code>fflate</code>, generating <code>[Content_Types].xml</code>, <code>_rels/.rels</code>, and <code>3D/3dmodel.model</code>.</li>
+        </ul>
+      </article>
+
+      <!-- ==================================================================
+           SECTION 4: 11-STAGE REPAIR PIPELINE
+           ================================================================== -->
+      <a id="architecture"></a>
+      <article class="docs-article" id="pipeline-stages">
+        <div class="article-header">
+          <span class="article-badge badge-cyan">Architecture</span>
+          <h2>The 11-Stage Geometry Repair Pipeline</h2>
+          <p>
+            Every mesh processed by StlTo3mf passes through an 11-stage pipeline designed to eliminate non-manifold geometry, ensure positive signed volume, and package compliant 3MF archives.
+          </p>
+        </div>
+
+        <div class="pipeline-step">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <h4>Format Detection &amp; Ingestion</h4>
+            <p>Determines binary vs ASCII STL. Valid binary files follow $L = 84 + 50 \times N$ bytes. ASCII files are parsed via streaming tokenizers supporting scientific float notations.</p>
+          </div>
+        </div>
+
+        <div class="pipeline-step">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <h4>Numeric Sanitization &amp; Guarding</h4>
+            <p>Tests all $(x, y, z)$ coordinates against <code>f64::NAN</code> and $\pm\infty$. Flushes subnormal floats to prevent CPU denormal execution penalties.</p>
+          </div>
+        </div>
+
+        <div class="pipeline-step">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <h4>Spatial Hash Grid Vertex Welding</h4>
+            <p>Raw STLs store 3 independent vertices per triangle. StlTo3mf hashes coordinates into cubic cells of width $\delta = 10^{-6}\text{ mm}$. A 27-neighborhood stencil query collapses coincident points into an indexed representation in $O(N)$ expected time.</p>
+          </div>
+        </div>
+
+        <div class="pipeline-step">
+          <div class="step-num">4</div>
+          <div class="step-body">
+            <h4>Degenerate Triangle Pruning</h4>
+            <p>Removes collapsed triangles (duplicate vertex indices) and collinear slivers where cross-product area $\|(\mathbf{v}_1 - \mathbf{v}_0) \times (\mathbf{v}_2 - \mathbf{v}_0)\|^2 < 10^{-24}\text{ mm}^4$.</p>
+          </div>
+        </div>
+
+        <div class="pipeline-step">
+          <div class="step-num">5</div>
+          <div class="step-body">
+            <h4>Directed Edge Adjacency &amp; Boundary Loop Detection</h4>
+            <p>Indexes directed edges $u \to v$. Edges lacking an opposite twin $v \to u$ are marked as boundary edges and assembled into closed topological cycles.</p>
+          </div>
+        </div>
+
+        <div class="pipeline-step">
+          <div class="step-num">6</div>
+          <div class="step-body">
+            <h4>Topological BFS Winding Propagation</h4>
+            <p>Starting from an arbitrary seed facet, walks adjacent shared edges via BFS. If an adjacent facet shares an edge with identical orientation rather than reversed, its vertex indices are swapped ($v_1 \leftrightarrow v_2$).</p>
+          </div>
+        </div>
+
+        <div class="pipeline-step">
+          <div class="step-num">7</div>
+          <div class="step-body">
+            <h4>Outward Normal Rectification via Divergence Theorem</h4>
+            <p>Evaluates polyhedral signed volume $V(\Omega) = \frac{1}{6} \sum \mathbf{p}_0 \cdot (\mathbf{p}_1 \times \mathbf{p}_2)$. If $V < 0$, the shell is wound inside out and all facets are inverted to point outward.</p>
+          </div>
+        </div>
+
+        <div class="pipeline-step">
+          <div class="step-num">8</div>
+          <div class="step-body">
+            <h4>Newell Projection &amp; Ear-Clipping Hole Healing</h4>
+            <p>Calculates the best-fit 3D plane normal for each boundary loop using Newell's method, projects onto the dominant 2D axis plane, and clips convex ears to patch holes with valid planar triangles.</p>
+          </div>
+        </div>
+
+        <div class="pipeline-step">
+          <div class="step-num">9</div>
+          <div class="step-body">
+            <h4>Dual Face Graph &amp; DSU Shell Splitting</h4>
+            <p>Constructs a dual graph of faces connected by shared undirected edges. Uses Disjoint Set Union with path compression to partition disconnected shells with 0-based re-indexing.</p>
+          </div>
+        </div>
+
+        <div class="pipeline-step">
+          <div class="step-num">10</div>
+          <div class="step-body">
+            <h4>Dynamic Scale Sanity Evaluation</h4>
+            <p>Analyzes bounding box dimensions against physical 3D print volumes. Flags anomalies under $2\text{ mm}$ (likely inches or meters) or over $5000\text{ mm}$ (microns or centimeters).</p>
+          </div>
+        </div>
+
+        <div class="pipeline-step">
+          <div class="step-num">11</div>
+          <div class="step-body">
+            <h4>Thumbnail Rasterization &amp; OPC ZIP Packaging</h4>
+            <p>Renders an orthographic $256 \times 256$ RGBA thumbnail with Lambertian diffuse shading, builds 3MF XML documents, and writes a Deflate-compressed PKZIP archive.</p>
+          </div>
+        </div>
+      </article>
+
+      <!-- ==================================================================
+           SECTION 4.1: MATHEMATICAL PROOFS
+           ================================================================== -->
+      <article class="docs-article" id="mathematical-proofs">
+        <div class="article-header">
+          <span class="article-badge badge-purple">Mathematics</span>
+          <h2>Mathematical Proofs &amp; Derivations</h2>
+          <p>Rigorous mathematical foundations underpinning StlTo3mf's geometry engine.</p>
+        </div>
+
+        <h3>1. Gauss-Ostrogradsky Divergence Theorem for Signed Volume</h3>
+        <p>
+          <strong>Theorem:</strong> Let $\Omega \subset \mathbb{R}^3$ be a compact, orientable 3-manifold with piecewise smooth boundary $\partial \Omega$.
+          For any continuously differentiable vector field $\mathbf{F}: \Omega \to \mathbb{R}^3$:
+        </p>
+        <div class="math-block">
+          <div class="math-title">Divergence Theorem</div>
+          ∭_Ω (∇ · F) dV = ∬_∂Ω (F · n) dS
+        </div>
+        <p>
+          Choose the linear position vector field $\mathbf{F}(\mathbf{x}) = \frac{1}{3}\mathbf{x} = \frac{1}{3}(x\hat{\mathbf{i}} + y\hat{\mathbf{j}} + z\hat{\mathbf{k}})$.
+          The divergence is constantly 1:
+        </p>
+        <div class="math-block">
+          ∇ · F = 1/3 ( ∂x/∂x + ∂y/∂y + ∂z/∂z ) = 1/3 (1 + 1 + 1) = 1
+        </div>
+        <p>Substituting into the volume integral:</p>
+        <div class="math-block">
+          V(Ω) = ∭_Ω 1 dV = 1/3 ∬_∂Ω (x · n) dS
+        </div>
+        <p>
+          For a closed surface discretized into planar triangular facets $f_i = (\mathbf{p}_0, \mathbf{p}_1, \mathbf{p}_2)$, evaluating the surface integral yields the exact summation:
+        </p>
+        <div class="math-block">
+          <div class="math-title">Exact Polyhedral Signed Volume</div>
+          V(Ω) = 1/6 ∑_{i=1}^{F} p_{0, i} · (p_{1, i} × p_{2, i})
+        </div>
+        <p>
+          <strong>Decision Criterion:</strong> If $V(\Omega) > 0$, the surface facets are consistently wound counter-clockwise when viewed from the outside (normals point outward). If $V(\Omega) < 0$, the shell is inverted; StlTo3mf swaps vertices $\mathbf{p}_1 \leftrightarrow \mathbf{p}_2$ on all faces.
+        </p>
+
+        <h3>2. Newell's Method for 3D Polygon Normal Estimation</h3>
+        <p>
+          Boundary loops $[v_0, v_1, \dots, v_{k-1}]$ extracted from 3D meshes are often non-planar. Simple cross products of two edges fail when edges are collinear or noisy.
+          Newell's algorithm calculates the exact projected area integrals along all three cardinal planes:
+        </p>
+        <div class="math-block">
+          <div class="math-title">Newell Normal Components</div>
+          N_x = ∑_{i=0}^{k-1} (y_i - y_{i+1})(z_i + z_{i+1})<br>
+          N_y = ∑_{i=0}^{k-1} (z_i - z_{i+1})(x_i + x_{i+1})<br>
+          N_z = ∑_{i=0}^{k-1} (x_i - x_{i+1})(y_i + y_{i+1})
+        </div>
+        <p>
+          where index $k \equiv 0$ (cyclic loop). The unit normal is obtained by $\hat{\mathbf{n}} = \mathbf{N} / \|\mathbf{N}\|$.
+          StlTo3mf projects the loop into 2D by dropping the axis with $\max(|n_x|, |n_y|, |n_z|)$, preventing coordinate distortion before ear-clipping.
+        </p>
+
+        <h3>3. Ear-Clipping Triangulation with Barycentric Containment</h3>
+        <p>
+          A vertex $w_i$ in a projected 2D polygon $P$ forms a clippable "ear" if it is strictly convex ($\det > 0$) and no other polygon vertex $w_j$ lies within the triangle $\Delta(w_{i-1}, w_i, w_{i+1})$.
+          Point containment is verified using barycentric coordinates $(\lambda_1, \lambda_2, \lambda_3)$:
+        </p>
+        <div class="math-block">
+          <div class="math-title">Barycentric Coordinates</div>
+          λ_1 ≥ 0,  λ_2 ≥ 0,  λ_3 ≥ 0,  λ_1 + λ_2 + λ_3 = 1
+        </div>
+      </article>
+
+      <!-- ==================================================================
+           SECTION 4.2: 3MF OPC SPECIFICATION
+           ================================================================== -->
+      <article class="docs-article" id="opc-spec">
+        <div class="article-header">
+          <span class="article-badge badge-cyan">Packaging</span>
+          <h2>3MF Open Packaging Conventions (OPC) Specification</h2>
+          <p>
+            A valid 3MF file is an Open Packaging Conventions (OPC) PKZIP archive conforming to the <strong>3MF Core Specification v1.x</strong>.
+          </p>
+        </div>
+
+        <div class="code-box">
+          <div class="code-header">
+            <span class="code-lang-tag">tree</span>
+            <button class="copy-btn"><span>📋</span><span>Copy</span></button>
+          </div>
+          <pre><code>model.3mf (Deflate ZIP Archive)
+├── [Content_Types].xml         # Declares MIME content types
+├── _rels/
+│   └── .rels                   # Root relationships linking model &amp; thumbnail
+├── 3D/
+│   ├── 3dmodel.model           # 3MF geometric model XML (<resources> &amp; <build>)
+│   └── _rels/
+│       └── 3dmodel.model.rels  # Thumbnail metadata relationship
+└── Metadata/
+    └── thumbnail.png           # 256x256 RGBA preview thumbnail</code></pre>
+        </div>
+
+        <h3>Multi-Shell <code>3D/3dmodel.model</code> Architecture</h3>
+        <p>When multi-shell separation is enabled, each disjoint component is serialized as an independent <code>&lt;object&gt;</code> element with its own unique ID and coordinate buffer:</p>
+        <div class="code-box">
+          <div class="code-header">
+            <span class="code-lang-tag">xml</span>
+            <button class="copy-btn"><span>📋</span><span>Copy</span></button>
+          </div>
+          <pre><code><span class="tok-tag">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span>
+<span class="tok-tag">&lt;model</span> unit=<span class="tok-str">"millimeter"</span> xml:lang=<span class="tok-str">"en-US"</span>
+       xmlns=<span class="tok-str">"http://schemas.microsoft.com/3dmanufacturing/core/2015/02"</span>
+       xmlns:m=<span class="tok-str">"http://schemas.microsoft.com/3dmanufacturing/material/2015/02"</span><span class="tok-tag">&gt;</span>
+  <span class="tok-tag">&lt;metadata</span> name=<span class="tok-str">"Title"</span><span class="tok-tag">&gt;</span>StlTo3mf Multi-Shell Export<span class="tok-tag">&lt;/metadata&gt;</span>
+  <span class="tok-tag">&lt;metadata</span> name=<span class="tok-str">"Application"</span><span class="tok-tag">&gt;</span>StlTo3mf (Omni3MF Engine)<span class="tok-tag">&lt;/metadata&gt;</span>
+
+  <span class="tok-tag">&lt;resources&gt;</span>
+    <span class="tok-com">&lt;!-- Color Palette Definition --&gt;</span>
+    <span class="tok-tag">&lt;m:colorgroup</span> id=<span class="tok-str">"1"</span><span class="tok-tag">&gt;</span>
+      <span class="tok-tag">&lt;m:color</span> color=<span class="tok-str">"#38BDF8FF"</span> /&gt;
+      <span class="tok-tag">&lt;m:color</span> color=<span class="tok-str">"#F97316FF"</span> /&gt;
+    <span class="tok-tag">&lt;/m:colorgroup&gt;</span>
+
+    <span class="tok-com">&lt;!-- Object 1: Body Shell --&gt;</span>
+    <span class="tok-tag">&lt;object</span> id=<span class="tok-str">"2"</span> name=<span class="tok-str">"Shell_1"</span> type=<span class="tok-str">"model"</span> pid=<span class="tok-str">"1"</span> pindex=<span class="tok-str">"0"</span><span class="tok-tag">&gt;</span>
+      <span class="tok-tag">&lt;mesh&gt;</span>
+        <span class="tok-tag">&lt;vertices&gt;</span> ... <span class="tok-tag">&lt;/vertices&gt;</span>
+        <span class="tok-tag">&lt;triangles&gt;</span> ... <span class="tok-tag">&lt;/triangles&gt;</span>
+      <span class="tok-tag">&lt;/mesh&gt;</span>
+    <span class="tok-tag">&lt;/object&gt;</span>
+
+    <span class="tok-com">&lt;!-- Object 2: Detail Shell --&gt;</span>
+    <span class="tok-tag">&lt;object</span> id=<span class="tok-str">"3"</span> name=<span class="tok-str">"Shell_2"</span> type=<span class="tok-str">"model"</span> pid=<span class="tok-str">"1"</span> pindex=<span class="tok-str">"1"</span><span class="tok-tag">&gt;</span>
+      <span class="tok-tag">&lt;mesh&gt;</span>
+        <span class="tok-tag">&lt;vertices&gt;</span> ... <span class="tok-tag">&lt;/vertices&gt;</span>
+        <span class="tok-tag">&lt;triangles&gt;</span> ... <span class="tok-tag">&lt;/triangles&gt;</span>
+      <span class="tok-tag">&lt;/mesh&gt;</span>
+    <span class="tok-tag">&lt;/object&gt;</span>
+  <span class="tok-tag">&lt;/resources&gt;</span>
+
+  <span class="tok-tag">&lt;build&gt;</span>
+    <span class="tok-tag">&lt;item</span> objectid=<span class="tok-str">"2"</span> /&gt;
+    <span class="tok-tag">&lt;item</span> objectid=<span class="tok-str">"3"</span> /&gt;
+  <span class="tok-tag">&lt;/build&gt;</span>
+<span class="tok-tag">&lt;/model&gt;</span></code></pre>
+        </div>
+      </article>
+
+      <!-- ==================================================================
+           SECTION 5: SLICER COMPATIBILITY MATRIX
+           ================================================================== -->
+      <article class="docs-article" id="slicers">
+        <div class="article-header">
+          <span class="article-badge badge-green">Compatibility</span>
+          <h2>Slicer Compatibility Matrix</h2>
+          <p>
+            StlTo3mf packages are tested and verified across all major commercial and open-source slicers used in consumer and industrial additive manufacturing.
+          </p>
+        </div>
+
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Slicer Software</th>
+                <th>Verified Versions</th>
+                <th>Multi-Shell Splitting</th>
+                <th>Sanitizer Protection</th>
+                <th>Thumbnail Display</th>
+                <th>Overall Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Bambu Studio</strong></td>
+                <td>v1.8, v1.9, v2.0+</td>
+                <td>✅ Native Multi-Part Dialog</td>
+                <td>✅ Strips dangerous configs</td>
+                <td>✅ Renders on LCD &amp; GUI</td>
+                <td><span class="status-pill verified">✓ 100% Verified</span></td>
+              </tr>
+              <tr>
+                <td><strong>OrcaSlicer</strong></td>
+                <td>v1.9, v2.0, v2.1+</td>
+                <td>✅ Discrete Per-Object Control</td>
+                <td>✅ Preserves custom filaments</td>
+                <td>✅ Full 256x256 display</td>
+                <td><span class="status-pill verified">✓ 100% Verified</span></td>
+              </tr>
+              <tr>
+                <td><strong>PrusaSlicer</strong></td>
+                <td>v2.6, v2.7, v2.8+</td>
+                <td>✅ Multi-Object Hierarchy</td>
+                <td>✅ Drops vendor presets</td>
+                <td>✅ Plate preview thumbnail</td>
+                <td><span class="status-pill verified">✓ 100% Verified</span></td>
+              </tr>
+              <tr>
+                <td><strong>UltiMaker Cura</strong></td>
+                <td>v5.2, v5.6+</td>
+                <td>✅ Multi-Component Grouping</td>
+                <td>✅ Neutral parameters</td>
+                <td>✅ Cura project preview</td>
+                <td><span class="status-pill verified">✓ 100% Verified</span></td>
+              </tr>
+              <tr>
+                <td><strong>SuperSlicer</strong></td>
+                <td>v2.4, v2.5+</td>
+                <td>✅ Independent Parts List</td>
+                <td>✅ Clean baseline config</td>
+                <td>✅ Viewport preview</td>
+                <td><span class="status-pill verified">✓ 100% Verified</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>Bambu Studio &amp; OrcaSlicer Workflow</h3>
+        <ol>
+          <li>Open Bambu Studio or OrcaSlicer.</li>
+          <li>Drag your converted <code>.3mf</code> file directly onto the build plate.</li>
+          <li>When prompted: <em>"Load these objects as a single multi-part object?"</em>, select <strong>Yes</strong>.</li>
+          <li>Each separated shell appears in the left object list, allowing 1-click filament / AMS color assignment.</li>
+        </ol>
+      </article>
+
+      <!-- ==================================================================
+           SECTION 6: CONTRIBUTING & TESTING
+           ================================================================== -->
+      <article class="docs-article" id="contributing">
+        <div class="article-header">
+          <span class="article-badge badge-orange">Quality Assurance</span>
+          <h2>Contributing &amp; Synthetic Test Suite</h2>
+          <p>
+            StlTo3mf maintains rigorous quality assurance through a programmatic 85-test synthetic verification suite, guaranteeing stability against pathological geometry.
+          </p>
+        </div>
+
+        <div class="callout warning">
+          <span class="callout-icon">⚠️</span>
+          <div class="callout-content">
+            <strong>The Zero-Unsafe Invariant:</strong> Every Rust crate in this workspace strictly forbids unsafe code via <code>#![forbid(unsafe_code)]</code>. PRs containing <code>unsafe</code> blocks or disabling this flag will fail automated review gates.
+          </div>
+        </div>
+
+        <h3>Why Programmatic Synthetic Testing?</h3>
+        <p>
+          To maintain a lightweight git history without checking multi-megabyte binary STL files into the repository, all test meshes are mathematically generated in Rust:
+        </p>
+        <ul>
+          <li><strong>Canonical Cubes:</strong> 12 triangles forming watertight 2-manifold closed boundaries.</li>
+          <li><strong>Deliberate Holes:</strong> Cubes with dropped faces verifying boundary edge cycle extraction and ear-clipping hole patches.</li>
+          <li><strong>Degenerate Facets:</strong> Collinear zero-area triangles and duplicate vertices verifying sub-micron spatial hash welding.</li>
+          <li><strong>Compound Shells:</strong> Multiple separated shapes testing DSU graph clustering and 0-based re-indexing.</li>
+        </ul>
+
+        <h3>Running Verification Gates</h3>
+        <p>Before submitting any pull request, ensure all test gates pass cleanly:</p>
+        <div class="code-box">
+          <div class="code-header">
+            <span class="code-lang-tag">bash</span>
+            <button class="copy-btn"><span>📋</span><span>Copy</span></button>
+          </div>
+          <pre><code><span class="tok-com"># 1. Check code formatting</span>
+cargo fmt --all -- --check
+
+<span class="tok-com"># 2. Enforce zero compiler &amp; clippy warnings</span>
+cargo clippy --workspace --all-targets -- -D warnings
+
+<span class="tok-com"># 3. Execute all 85 workspace synthetic and invariant tests</span>
+cargo test --workspace
+
+<span class="tok-com"># 4. Execute client-side web engine verification suite</span>
+node test/client_engine_test.js</code></pre>
+        </div>
+      </article>
+
+    </main>
+  </div>
+
+  <!-- Documentation Footer -->
+  <footer class="docs-footer">
+    <p>
+      StlTo3mf &amp; Omni3MF Engine — 100% Safe Rust &amp; Client-Side Geometry Repair.<br>
+      Licensed under MIT / Apache 2.0. Built for the modern 3D printing community.
+      <br><br>
+      <a href="../">← Return to StlTo3mf Studio</a> &nbsp;•&nbsp; <a href="https://github.com/madireis/stl-to-3mf">GitHub Repository</a>
+    </p>
+  </footer>
+
+  <!-- Documentation Interactive Controller -->
+  <script src="./docs.js"></script>
+</body>
+</html>

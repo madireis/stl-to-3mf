@@ -64,10 +64,29 @@ function parseMultipart(buffer, boundary) {
 const server = http.createServer((req, res) => {
   const url = new URL(req.url, `http://${req.headers.host}`);
 
-  if (url.pathname === '/' || url.pathname === '/index.html') {
-    const html = fs.readFileSync(path.join(PUBLIC_DIR, 'index.html'), 'utf-8');
-    res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
-    return res.end(html);
+  const cleanPath = path.normalize(url.pathname).replace(/^(\.\.[\/\\])+/, '');
+  let filePath = path.join(PUBLIC_DIR, cleanPath === '/' || cleanPath === '\\' ? 'index.html' : cleanPath);
+  if (fs.existsSync(filePath) && fs.statSync(filePath).isDirectory()) {
+    filePath = path.join(filePath, 'index.html');
+  }
+
+  if (fs.existsSync(filePath) && fs.statSync(filePath).isFile()) {
+    const ext = path.extname(filePath).toLowerCase();
+    const mimeTypes = {
+      '.html': 'text/html; charset=utf-8',
+      '.js': 'application/javascript; charset=utf-8',
+      '.css': 'text/css; charset=utf-8',
+      '.json': 'application/json; charset=utf-8',
+      '.png': 'image/png',
+      '.jpg': 'image/jpeg',
+      '.svg': 'image/svg+xml',
+      '.ico': 'image/x-icon',
+      '.3mf': 'application/vnd.ms-package.3dmanufacturing-3dmodel+xml',
+      '.stl': 'model/stl'
+    };
+    const contentType = mimeTypes[ext] || 'application/octet-stream';
+    res.writeHead(200, { 'Content-Type': contentType });
+    return fs.createReadStream(filePath).pipe(res);
   }
 
   if (url.pathname === '/api/convert' && req.method === 'POST') {
