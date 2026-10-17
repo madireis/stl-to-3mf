@@ -3,68 +3,188 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>StlTo3mf Studio — Smart STL to 3MF Converter & Repair Studio</title>
+  <title>StlTo3mf Studio — Instant Client-Side STL to 3MF Converter & Mesh Repair</title>
+  <meta name="description" content="Convert STL to 3MF directly in your browser with automated mesh repair, multi-shell separation, 3D WebGL preview, and slicer profile sanitization. 100% client-side, zero server uploads.">
   <style>
     :root {
-      --bg: #0f172a;
-      --card: #1e293b;
+      --bg: #090d16;
+      --card: #111827;
+      --card-inner: #1e293b;
       --border: #334155;
+      --border-focus: #38bdf8;
       --accent: #38bdf8;
       --accent-hover: #0ea5e9;
+      --accent-glow: rgba(56, 189, 248, 0.35);
       --text: #f8fafc;
       --text-muted: #94a3b8;
       --success: #34d399;
       --warning: #fbbf24;
       --danger: #f87171;
     }
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-    body { background: var(--bg); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 40px 20px; }
-    .container { width: 100%; max-width: 720px; }
-    header { text-align: center; margin-bottom: 30px; }
-    h1 { font-size: 2.2rem; font-weight: 800; background: linear-gradient(135deg, #38bdf8, #818cf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 8px; }
-    p.subtitle { color: var(--text-muted); font-size: 0.95rem; }
-
-    .card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 24px; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3); margin-bottom: 24px; }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
     
+    /* Navigation Bar */
+    nav {
+      background: rgba(17, 24, 39, 0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 12px 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 1.25rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      text-decoration: none;
+      color: var(--text);
+    }
+    .brand-badge {
+      background: linear-gradient(135deg, #38bdf8, #818cf8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .nav-link {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 600;
+      padding: 6px 12px;
+      border-radius: 8px;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .nav-link:hover {
+      color: var(--text);
+      background: rgba(255, 255, 255, 0.06);
+    }
+    .nav-link.highlight {
+      color: var(--accent);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      background: rgba(56, 189, 248, 0.08);
+    }
+    .nav-link.highlight:hover {
+      background: rgba(56, 189, 248, 0.16);
+      box-shadow: 0 0 12px var(--accent-glow);
+    }
+
+    /* Main Studio Container */
+    main {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 460px 1fr;
+      gap: 20px;
+      padding: 20px 28px;
+      max-width: 1600px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    @media (max-width: 1024px) {
+      main {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Left Control Sidebar */
+    .sidebar {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      overflow-y: auto;
+      max-height: calc(100vh - 120px);
+      padding-right: 4px;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 20px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
+    }
+
+    /* Drop Zone */
     .drop-zone {
       border: 2px dashed var(--border);
       border-radius: 12px;
-      padding: 40px 20px;
+      padding: 32px 20px;
       text-align: center;
       cursor: pointer;
       transition: all 0.2s ease;
       background: rgba(15, 23, 42, 0.5);
     }
-    .drop-zone:hover, .drop-zone.dragover { border-color: var(--accent); background: rgba(56, 189, 248, 0.05); }
-    .drop-icon { font-size: 40px; margin-bottom: 12px; display: block; }
-    .file-name { margin-top: 10px; font-weight: 600; color: var(--accent); font-size: 0.95rem; }
+    .drop-zone:hover, .drop-zone.dragover {
+      border-color: var(--accent);
+      background: rgba(56, 189, 248, 0.06);
+      box-shadow: inset 0 0 20px rgba(56, 189, 248, 0.1);
+    }
+    .drop-icon { font-size: 38px; margin-bottom: 10px; display: block; }
+    .file-name {
+      margin-top: 12px;
+      font-weight: 700;
+      color: var(--accent);
+      font-size: 0.95rem;
+      word-break: break-all;
+    }
 
-    .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 20px; }
+    /* Options Grid */
+    .options-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 16px;
+    }
     .toggle-label {
       display: flex;
       align-items: center;
-      gap: 10px;
-      font-size: 0.9rem;
+      gap: 8px;
+      font-size: 0.85rem;
+      font-weight: 500;
       color: var(--text);
       cursor: pointer;
-      background: rgba(15, 23, 42, 0.4);
-      padding: 10px 14px;
+      background: var(--card-inner);
+      padding: 9px 12px;
       border-radius: 8px;
       border: 1px solid var(--border);
       user-select: none;
+      transition: border-color 0.15s ease;
     }
-    .toggle-label input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--accent); cursor: pointer; }
-    
+    .toggle-label:hover { border-color: rgba(56, 189, 248, 0.4); }
+    .toggle-label input[type="checkbox"] { width: 15px; height: 15px; accent-color: var(--accent); cursor: pointer; }
+
     .scale-row {
       grid-column: span 2;
       display: flex;
       align-items: center;
+      justify-content: space-between;
       gap: 12px;
-      background: rgba(15, 23, 42, 0.4);
-      padding: 10px 14px;
+      background: var(--card-inner);
+      padding: 9px 12px;
       border-radius: 8px;
       border: 1px solid var(--border);
-      font-size: 0.9rem;
+      font-size: 0.85rem;
     }
     .scale-input {
       background: var(--bg);
@@ -73,18 +193,21 @@
       padding: 6px 10px;
       border-radius: 6px;
       width: 100px;
+      font-weight: 600;
       outline: none;
+      text-align: right;
     }
     .scale-input:focus { border-color: var(--accent); }
 
-    .btn-row { display: flex; gap: 12px; margin-top: 22px; }
+    /* Buttons */
+    .btn-row { display: flex; gap: 10px; margin-top: 16px; }
     button {
       flex: 1;
-      padding: 12px 20px;
+      padding: 12px 18px;
       border-radius: 10px;
       border: none;
       font-size: 0.95rem;
-      font-weight: 600;
+      font-weight: 700;
       cursor: pointer;
       transition: all 0.2s ease;
       display: flex;
@@ -92,205 +215,266 @@
       justify-content: center;
       gap: 8px;
     }
-    .btn-primary { background: var(--accent); color: #0f172a; }
-    .btn-primary:hover:not(:disabled) { background: var(--accent-hover); box-shadow: 0 0 15px rgba(56, 189, 248, 0.4); }
-    .btn-secondary { background: #334155; color: var(--text); }
-    .btn-secondary:hover:not(:disabled) { background: #475569; }
-    button:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn-primary {
+      background: linear-gradient(135deg, #38bdf8, #0ea5e9);
+      color: #090d16;
+    }
+    .btn-primary:hover:not(:disabled) {
+      box-shadow: 0 0 20px var(--accent-glow);
+      filter: brightness(1.1);
+    }
+    button:disabled { opacity: 0.45; cursor: not-allowed; }
 
+    /* Status Messages & Warnings */
     .status-box {
-      margin-top: 16px;
-      padding: 14px;
+      margin-top: 14px;
+      padding: 12px 16px;
       border-radius: 8px;
-      font-size: 0.9rem;
+      font-size: 0.88rem;
+      line-height: 1.4;
       display: none;
       animation: fadeIn 0.3s ease;
     }
-    .status-box.info { background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.3); color: var(--accent); display: block; }
-    .status-box.success { background: rgba(52, 211, 153, 0.1); border: 1px solid rgba(52, 211, 153, 0.3); color: var(--success); display: block; }
-    .status-box.error { background: rgba(248, 113, 113, 0.1); border: 1px solid rgba(248, 113, 113, 0.3); color: var(--danger); display: block; }
+    .status-box.info { background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.3); color: var(--accent); }
+    .status-box.success { background: rgba(52, 211, 153, 0.1); border: 1px solid rgba(52, 211, 153, 0.3); color: var(--success); }
+    .status-box.warning { background: rgba(251, 191, 36, 0.1); border: 1px solid rgba(251, 191, 36, 0.3); color: var(--warning); }
+    .status-box.error { background: rgba(248, 113, 113, 0.1); border: 1px solid rgba(248, 113, 113, 0.3); color: var(--danger); }
 
-    .inspect-result {
-      margin-top: 20px;
-      background: rgba(15, 23, 42, 0.7);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 16px;
+    .warning-banner {
+      background: rgba(251, 191, 36, 0.12);
+      border: 1px solid rgba(251, 191, 36, 0.4);
+      color: #fde68a;
+      padding: 10px 14px;
+      border-radius: 8px;
       font-size: 0.85rem;
-      max-height: 260px;
-      overflow-y: auto;
+      margin-top: 12px;
       display: none;
     }
-    .inspect-result pre { font-family: monospace; white-space: pre-wrap; color: #cbd5e1; }
 
-    footer { color: var(--text-muted); font-size: 0.8rem; text-align: center; margin-top: auto; }
+    /* Diagnostics Card */
+    .stats-card { display: none; margin-top: 10px; }
+    .stats-card h3 { font-size: 0.95rem; font-weight: 700; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; }
+    .stat-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+    .stat-table tr { border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
+    .stat-table td { padding: 6px 2px; }
+    .stat-table td:first-child { color: var(--text-muted); }
+    .stat-table td:last-child { text-align: right; font-weight: 600; font-family: monospace; }
+    
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+    .badge-success { background: rgba(52, 211, 153, 0.2); color: var(--success); border: 1px solid rgba(52, 211, 153, 0.4); }
+    .badge-warning { background: rgba(251, 191, 36, 0.2); color: var(--warning); border: 1px solid rgba(251, 191, 36, 0.4); }
+
+    .shell-details {
+      margin-top: 12px;
+      padding-top: 10px;
+      border-top: 1px solid var(--border);
+    }
+    .shell-details h4 { font-size: 0.82rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; }
+    .shell-list { list-style: none; display: flex; flex-direction: column; gap: 6px; font-size: 0.8rem; }
+    .shell-item { display: flex; align-items: center; gap: 8px; background: rgba(15, 23, 42, 0.4); padding: 5px 8px; border-radius: 6px; }
+    .shell-color-swatch { width: 10px; height: 10px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
+    .text-success { color: var(--success); }
+    .text-warning { color: var(--warning); }
+
+    /* Right Viewport */
+    .viewport-container {
+      background: #080c14;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      position: relative;
+      overflow: hidden;
+      min-height: 480px;
+      display: flex;
+      flex-direction: column;
+    }
+    #viewport3d {
+      width: 100%;
+      height: 100%;
+      flex: 1;
+      cursor: grab;
+    }
+    #viewport3d:active { cursor: grabbing; }
+
+    /* Viewport Floating Controls */
+    .viewport-overlay {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      display: flex;
+      gap: 8px;
+      z-index: 10;
+    }
+    .btn-tool {
+      background: rgba(17, 24, 39, 0.85);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      backdrop-filter: blur(8px);
+      transition: all 0.15s ease;
+    }
+    .btn-tool:hover { color: var(--text); border-color: var(--accent); }
+    .btn-tool.active { background: rgba(56, 189, 248, 0.2); color: var(--accent); border-color: var(--accent); }
+
+    .viewport-hint {
+      position: absolute;
+      bottom: 14px;
+      left: 14px;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      background: rgba(15, 23, 42, 0.75);
+      backdrop-filter: blur(8px);
+      padding: 4px 10px;
+      border-radius: 6px;
+      pointer-events: none;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    /* Footer */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 16px 28px;
+      text-align: center;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      background: rgba(11, 15, 26, 0.6);
+    }
+    footer a { color: var(--accent); text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+
     @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
   </style>
 </head>
 <body>
 
-  <div class="container">
-    <header>
-      <h1>StlTo3mf Studio</h1>
-      <p class="subtitle">Next-gen STL to 3MF converter with automatic mesh repair, multi-shell separation, and slicer profile sanitization (Powered by Omni3MF Engine).</p>
-    </header>
+  <!-- Navigation Bar -->
+  <nav>
+    <a href="./" class="brand">
+      <span>📐</span>
+      <span>StlTo3mf <span class="brand-badge">Studio</span></span>
+    </a>
+    <div class="nav-links">
+      <a href="./docs/" class="nav-link highlight">📖 Documentation</a>
+      <a href="https://github.com/madireis/stl-to-3mf" target="_blank" rel="noopener noreferrer" class="nav-link">⭐ GitHub</a>
+    </div>
+  </nav>
 
-    <div class="card">
-      <div class="drop-zone" id="dropZone">
-        <span class="drop-icon">📦</span>
-        <strong>Click to select an STL file</strong> or drag & drop here
-        <div class="file-name" id="fileNameDisplay"></div>
-        <input type="file" id="fileInput" accept=".stl" style="display: none;" />
-      </div>
-
-      <div class="options-grid">
-        <label class="toggle-label">
-          <input type="checkbox" id="splitShells" checked />
-          <span>Separate Multi-Body Shells</span>
-        </label>
-        <label class="toggle-label">
-          <input type="checkbox" id="repairMesh" checked />
-          <span>Heal Holes & Recompute Normals</span>
-        </label>
-        <label class="toggle-label">
-          <input type="checkbox" id="stripConfig" />
-          <span>Strip Slicer Profile Presets</span>
-        </label>
-        <label class="toggle-label">
-          <input type="checkbox" id="genThumbnail" checked />
-          <span>Inject Touchscreen Thumbnail</span>
-        </label>
-        <div class="scale-row">
-          <label for="scaleFactor">Scale Multiplier:</label>
-          <input type="number" id="scaleFactor" class="scale-input" placeholder="1.0 (default)" step="any" />
-          <span style="color: var(--text-muted); font-size: 0.8rem;">(e.g., 25.4 for inches to mm)</span>
+  <!-- Studio Workspace -->
+  <main>
+    <!-- Left Column: Controls & Diagnostics -->
+    <div class="sidebar">
+      <div class="card">
+        <div class="drop-zone" id="dropZone">
+          <span class="drop-icon">📦</span>
+          <strong style="font-size: 1.05rem;">Drop your STL file here</strong>
+          <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 4px;">or click to browse your disk</p>
+          <div class="file-name" id="fileNameDisplay"></div>
+          <input type="file" id="fileInput" accept=".stl" style="display: none;" />
         </div>
+
+        <div class="options-grid">
+          <label class="toggle-label" title="Clustering disconnected bodies into separate 3MF objects via DSU">
+            <input type="checkbox" id="splitShells" checked />
+            <span>Separate Multi-Shells</span>
+          </label>
+          <label class="toggle-label" title="Welds coincident vertices (10⁻⁶ mm), heals boundary holes, and reorients normals outward">
+            <input type="checkbox" id="repairMesh" checked />
+            <span>Heal Holes & Normals</span>
+          </label>
+          <label class="toggle-label" title="Strip proprietary printer configuration elements while keeping colors">
+            <input type="checkbox" id="stripConfig" />
+            <span>Sanitize Slicer Profiles</span>
+          </label>
+          <label class="toggle-label" title="Inject 256x256 rendered preview into 3MF for printer touchscreens">
+            <input type="checkbox" id="genThumbnail" checked />
+            <span>Embed 3D Thumbnail</span>
+          </label>
+          <div class="scale-row">
+            <label for="scaleFactor">Scale Multiplier:</label>
+            <input type="number" id="scaleFactor" class="scale-input" value="1.0" step="any" />
+          </div>
+        </div>
+
+        <div id="scaleWarningBox" class="warning-banner"></div>
+
+        <div class="btn-row">
+          <button class="btn-primary" id="btnConvert" disabled>
+            ⚡ Convert &amp; Download 3MF
+          </button>
+        </div>
+
+        <div id="statusBox" class="status-box"></div>
       </div>
 
-      <div class="btn-row">
-        <button class="btn-secondary" id="btnInspect" disabled>🔍 Inspect Mesh</button>
-        <button class="btn-primary" id="btnConvert" disabled>⚡ Convert & Download 3MF</button>
-      </div>
+      <!-- Geometric Diagnostics Card -->
+      <div class="card stats-card" id="statsCard">
+        <h3>
+          <span>Geometric Diagnostics</span>
+          <span id="statWatertight" class="badge"></span>
+        </h3>
+        <table class="stat-table">
+          <tbody>
+            <tr><td>Source Format</td><td id="statFormat">-</td></tr>
+            <tr><td>Triangles</td><td id="statTriangles">0</td></tr>
+            <tr><td>Unique Vertices</td><td id="statVertices">0</td></tr>
+            <tr><td>Deduplicated Vertices (10⁻⁶ mm)</td><td id="statDeduplicated">0</td></tr>
+            <tr><td>Pruned Degenerate Facets</td><td id="statPruned">0</td></tr>
+            <tr><td>Boundary Holes Patched</td><td id="statHolesPatched">0</td></tr>
+            <tr><td>Discrete Shells Detected</td><td id="statShells">0</td></tr>
+            <tr><td>Bounding Box Dimensions</td><td id="statDimensions">-</td></tr>
+            <tr><td>Signed Volume</td><td id="statVolume">-</td></tr>
+          </tbody>
+        </table>
 
-      <div id="statusBox" class="status-box"></div>
-      <div id="inspectBox" class="inspect-result">
-        <strong>Geometric Diagnostics:</strong>
-        <pre id="inspectData"></pre>
+        <div class="shell-details">
+          <h4>Shell Hierarchy</h4>
+          <ul class="shell-list" id="shellDetailsList"></ul>
+        </div>
       </div>
     </div>
 
-    <footer>
-      Powered by StlTo3mf &bull; Rust <code>omni3mf-core</code> 100% Safe Geometry Engine
-    </footer>
-  </div>
+    <!-- Right Column: Interactive 3D Viewport -->
+    <div class="viewport-container">
+      <div class="viewport-overlay">
+        <button class="btn-tool active" id="btnToggleHoles" title="Highlight open boundary edges in glowing red">🔴 Hole Wireframe</button>
+        <button class="btn-tool" id="btnToggleWireframe" title="Toggle triangle wireframe view">Mesh Wireframe</button>
+        <button class="btn-tool" id="btnResetCamera" title="Center camera on model">Reset View</button>
+      </div>
 
-  <script>
-    const dropZone = document.getElementById('dropZone');
-    const fileInput = document.getElementById('fileInput');
-    const fileNameDisplay = document.getElementById('fileNameDisplay');
-    const btnConvert = document.getElementById('btnConvert');
-    const btnInspect = document.getElementById('btnInspect');
-    const statusBox = document.getElementById('statusBox');
-    const inspectBox = document.getElementById('inspectBox');
-    const inspectData = document.getElementById('inspectData');
+      <div id="viewport3d"></div>
 
-    let selectedFile = null;
+      <div class="viewport-hint">
+        Left-click: Rotate &bull; Right-click: Pan &bull; Scroll: Zoom &bull; Multi-shell colors active
+      </div>
+    </div>
+  </main>
 
-    dropZone.addEventListener('click', () => fileInput.click());
-    dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('dragover'); });
-    dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
-    dropZone.addEventListener('drop', (e) => {
-      e.preventDefault();
-      dropZone.classList.remove('dragover');
-      if (e.dataTransfer.files.length > 0) {
-        handleFileSelect(e.dataTransfer.files[0]);
-      }
-    });
+  <!-- Footer -->
+  <footer>
+    StlTo3mf Studio &bull; 100% Safe In-Browser Geometry Engine &bull; Zero Server Uploads &bull; Conforms to 3MF Core Spec v1.x &bull; <a href="./docs/">Documentation</a>
+  </footer>
 
-    fileInput.addEventListener('change', (e) => {
-      if (e.target.files.length > 0) {
-        handleFileSelect(e.target.files[0]);
-      }
-    });
+  <!-- Vendored Libraries -->
+  <script src="./assets/vendor/three.min.js"></script>
+  <script src="./assets/vendor/OrbitControls.js"></script>
+  <script src="./assets/vendor/fflate.min.js"></script>
 
-    function handleFileSelect(file) {
-      if (!file.name.toLowerCase().endsWith('.stl')) {
-        showStatus('Please select a valid .stl file', 'error');
-        return;
-      }
-      selectedFile = file;
-      fileNameDisplay.textContent = `Selected: ${file.name} (${(file.size / 1024 / 1024).toFixed(2)} MB)`;
-      btnConvert.disabled = false;
-      btnInspect.disabled = false;
-      showStatus('File ready for conversion or inspection', 'info');
-      inspectBox.style.display = 'none';
-    }
+  <!-- Client-Side Engine Modules -->
+  <script src="./assets/js/stl-parser.js"></script>
+  <script src="./assets/js/mesh-repair.js"></script>
+  <script src="./assets/js/shell-separator.js"></script>
+  <script src="./assets/js/threemf-packager.js"></script>
+  <script src="./assets/js/viewer3d.js"></script>
+  <script src="./assets/js/app.js"></script>
 
-    function showStatus(text, type) {
-      statusBox.textContent = text;
-      statusBox.className = `status-box ${type}`;
-    }
-
-    btnInspect.addEventListener('click', async () => {
-      if (!selectedFile) return;
-      showStatus('Inspecting geometric metrics and topology...', 'info');
-      btnInspect.disabled = true;
-
-      const fd = new FormData();
-      fd.append('file', selectedFile);
-
-      try {
-        const res = await fetch('/api/inspect', { method: 'POST', body: fd });
-        if (!res.ok) throw new Error(await res.text());
-        const data = await res.json();
-        inspectData.textContent = JSON.stringify(data, null, 2);
-        inspectBox.style.display = 'block';
-        showStatus('Inspection completed successfully!', 'success');
-      } catch (err) {
-        showStatus('Inspection error: ' + err.message, 'error');
-      } finally {
-        btnInspect.disabled = false;
-      }
-    });
-
-    btnConvert.addEventListener('click', async () => {
-      if (!selectedFile) return;
-      showStatus('Processing mesh: healing holes, recalculating normals & packaging 3MF...', 'info');
-      btnConvert.disabled = true;
-
-      const fd = new FormData();
-      fd.append('file', selectedFile);
-      fd.append('split_shells', document.getElementById('splitShells').checked);
-      fd.append('repair', document.getElementById('repairMesh').checked);
-      fd.append('strip_slicer_config', document.getElementById('stripConfig').checked);
-      const scale = document.getElementById('scaleFactor').value;
-      if (scale) fd.append('scale', scale);
-
-      try {
-        const res = await fetch('/api/convert', { method: 'POST', body: fd });
-        if (!res.ok) {
-          const errData = await res.json().catch(() => ({ error: 'Conversion failed' }));
-          throw new Error(errData.error || 'Conversion failed');
-        }
-
-        const blob = await res.blob();
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        const baseName = selectedFile.name.replace(/\.[^/.]+$/, "");
-        a.download = `${baseName}_stlto3mf.3mf`;
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-        window.URL.revokeObjectURL(url);
-
-        showStatus('Conversion successful! Download started.', 'success');
-      } catch (err) {
-        showStatus('Conversion error: ' + err.message, 'error');
-      } finally {
-        btnConvert.disabled = false;
-      }
-    });
-  </script>
 </body>
 </html>
